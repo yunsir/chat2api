@@ -65,6 +65,9 @@ async def send_conversation(request: Request, req_token: str = Depends(oauth2_sc
     except Exception:
         raise HTTPException(status_code=400, detail={"error": "Invalid JSON body"})
 
+    return await async_retry(retry_send_conversation, request_data, req_token)
+
+async def retry_send_conversation(request_data: any, req_token: str):
     chat_service = await async_retry(to_send_conversation, request_data, req_token)
     try:
         await chat_service.prepare_send_conversation()
